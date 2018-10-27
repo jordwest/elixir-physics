@@ -1,4 +1,4 @@
-defmodule Physics do
+defmodule Physics.Native do
     use Rustler, otp_app: :server, crate: :physics
 
     # When your NIF is loaded, it will override this function.

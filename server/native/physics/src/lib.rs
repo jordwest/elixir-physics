@@ -14,7 +14,7 @@ mod atoms {
 }
 
 rustler_export_nifs! {
-    "Elixir.Physics",
+    "Elixir.Physics.Native",
     [("add", 2, add)],
     None
 }
