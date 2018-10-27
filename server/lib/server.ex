@@ -15,17 +15,16 @@ defmodule Server do
 
   """
   def start(_type, _args) do
-    IO.puts "Hello World"
-    case Elixir.Physics.Native.add(2,2) do
-      {:ok, n} -> IO.puts n
-      _ -> IO.puts "Error"
-    end
-    IO.puts "Done"
     {:ok, pid} = GenServer.start_link(Physics.Server, 0)
-    GenServer.cast(pid, {:add, 5})
-    GenServer.cast(pid, {:add, 2})
-    GenServer.cast(pid, {:add, 3})
-    IO.puts GenServer.call(pid, :ask)
+    body_id = Physics.Server.add_body(pid, 0.0, 0.0)
+    body_id_2 = Physics.Server.add_body(pid, 0.0, 0.0)
+    IO.puts Physics.Server.get_pos(pid, body_id)
+    IO.puts Physics.Server.get_pos(pid, body_id_2)
+    Physics.Server.step(pid)
+    IO.puts Physics.Server.get_pos(pid, body_id)
+    Physics.Server.step(pid)
+    IO.puts Physics.Server.get_pos(pid, body_id)
+    Physics.Server.step(pid)
     {:ok, pid}
   end
 end
