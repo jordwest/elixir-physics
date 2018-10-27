@@ -3,17 +3,29 @@ defmodule Server.MixProject do
 
   def project do
     [
+      compilers: [:rustler] ++ Mix.compilers,
       app: :server,
       version: "0.1.0",
       elixir: "~> 1.7",
+      escript: [main_module: Server],
       start_permanent: Mix.env() == :prod,
-      deps: deps()
+      deps: deps(),
+      rustler_crates: rustler_crates(),
     ]
+  end
+
+  defp rustler_crates do
+    [physics: [
+      path: "native/physics",
+      mode: (if Mix.env == :prod, do: :release, else: :debug),
+    ]]
   end
 
   # Run "mix help compile.app" to learn about applications.
   def application do
     [
+      mod: {Server, []},
+      applications: [:logger],
       extra_applications: [:logger]
     ]
   end

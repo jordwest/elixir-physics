@@ -6,7 +6,7 @@ authors = []
 [lib]
 name = "physics"
 path = "src/lib.rs"
-crate-type = ["dylib"]
+crate-type = ["cdylib"]
 
 [dependencies]
 rustler = "0.18.0"
