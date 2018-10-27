@@ -1,10 +1,13 @@
 defmodule Physics.Server do
     use GenServer
 
+    def start_link do
+        {:ok, pid} = GenServer.start_link(Physics.Server, 0)
+    end
+
     @impl true
     def init(start_val) do
-        IO.puts "Starting Physics NIF server with"
-        IO.puts start_val
+        IO.puts "Starting Physics NIF server"
         result = Physics.Native.state_new()
         {:ok, result}
     end

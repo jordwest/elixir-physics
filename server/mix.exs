@@ -1,14 +1,15 @@
-defmodule Server.MixProject do
+defmodule Server.Mixfile do
   use Mix.Project
 
   def project do
     [
-      compilers: [:rustler] ++ Mix.compilers,
       app: :server,
-      version: "0.1.0",
+      version: "0.0.1",
       elixir: "~> 1.7",
-      escript: [main_module: Server],
-      start_permanent: Mix.env() == :prod,
+      elixirc_paths: elixirc_paths(Mix.env),
+      compilers: [:rustler, :phoenix, :gettext] ++ Mix.compilers,
+      start_permanent: Mix.env == :prod,
+      aliases: aliases(),
       deps: deps(),
       rustler_crates: rustler_crates(),
     ]
@@ -21,21 +22,48 @@ defmodule Server.MixProject do
     ]]
   end
 
-  # Run "mix help compile.app" to learn about applications.
+  # Configuration for the OTP application.
+  #
+  # Type `mix help compile.app` for more information.
   def application do
     [
-      mod: {Server, []},
-      applications: [:logger],
-      extra_applications: [:logger]
+      mod: {Server.Application, []},
+      extra_applications: [:logger, :runtime_tools]
     ]
   end
 
-  # Run "mix help deps" to learn about dependencies.
+  # Specifies which paths to compile per environment.
+  defp elixirc_paths(:test), do: ["lib", "test/support"]
+  defp elixirc_paths(_),     do: ["lib"]
+
+  # Specifies your project dependencies.
+  #
+  # Type `mix help deps` for examples and options.
   defp deps do
     [
-      {:rustler, "~> 0.18.0"}
-      # {:dep_from_hexpm, "~> 0.3.0"},
-      # {:dep_from_git, git: "https://github.com/elixir-lang/my_dep.git", tag: "0.1.0"},
+      {:rustler, "~> 0.18.0"},
+      {:phoenix, "~> 1.3.4"},
+      {:phoenix_pubsub, "~> 1.0"},
+      {:phoenix_ecto, "~> 3.2"},
+      {:postgrex, ">= 0.0.0"},
+      {:phoenix_html, "~> 2.10"},
+      {:phoenix_live_reload, "~> 1.0", only: :dev},
+      {:gettext, "~> 0.11"},
+      {:plug_cowboy, "~> 1.0"}
+    ]
+  end
+
+  # Aliases are shortcuts or tasks specific to the current project.
+  # For example, to create, migrate and run the seeds file at once:
+  #
+  #     $ mix ecto.setup
+  #
+  # See the documentation for `Mix` for more info on aliases.
+  defp aliases do
+    [
+      "ecto.setup": ["ecto.create", "ecto.migrate", "run priv/repo/seeds.exs"],
+      "ecto.reset": ["ecto.drop", "ecto.setup"],
+      "test": ["ecto.create --quiet", "ecto.migrate", "test"]
     ]
   end
 end
