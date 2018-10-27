@@ -92,9 +92,12 @@ fn state_get_pos<'a>(env: Env<'a>, args: &[Term<'a>]) -> NifResult<Term<'a>> {
     let handle = state.body_handles.get(&body_id).ok_or(rustler::error::Error::RaiseAtom("id_not_found"))?;
 
     let body = state.world.rigid_body(*handle).ok_or(rustler::error::Error::RaiseAtom("body_not_found"))?;
-    let a = body.velocity().linear.y;
+    let pos = body.position();
+    let x = pos.translation.vector.x;
+    let y = pos.translation.vector.y;
+    let r = pos.rotation.angle();
 
-    Ok(a.encode(env))
+    Ok((x, y, r).encode(env))
 }
 
 fn state_add_body<'a>(env: Env<'a>, args: &[Term<'a>]) -> NifResult<Term<'a>> {
