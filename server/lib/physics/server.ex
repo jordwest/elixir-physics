@@ -2,7 +2,7 @@ defmodule Physics.Server do
     use GenServer
 
     def start_link do
-        {:ok, pid} = GenServer.start_link(Physics.Server, 0)
+        {:ok, pid} = GenServer.start_link(Physics.Server, 0, [name: Physics.Server])
     end
 
     @impl true
@@ -30,7 +30,13 @@ defmodule Physics.Server do
       {:reply, body_id, state}
     end
 
-    def add_body(pid, x, y), do: GenServer.call(pid, {:add_body, x, y})
-    def get_pos(pid, body_id), do: GenServer.call(pid, {:get_pos, body_id})
-    def step(pid), do: GenServer.cast(pid, :step)
+    def add_body(x, y), do: GenServer.call(__MODULE__, {:add_body, x, y})
+    def get_pos(body_id), do: GenServer.call(__MODULE__, {:get_pos, body_id})
+    def step(), do: GenServer.cast(__MODULE__, :step)
+    def get_all() do
+        {x, y, r} = get_pos(0)
+        %{
+            0 => %{:x => x, :y => y, :r => y}
+        }
+    end
 end
