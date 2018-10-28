@@ -12,6 +12,7 @@ defmodule Server.Application do
       supervisor(ServerWeb.Endpoint, []),
 
       supervisor(Physics.Server, []),
+      supervisor(Physics.Timer, []),
       # Start your own worker by calling: Server.Worker.start_link(arg1, arg2, arg3)
       # worker(Server.Worker, [arg1, arg2, arg3]),
     ]
@@ -20,7 +21,7 @@ defmodule Server.Application do
     # for other strategies and supported options
     opts = [strategy: :one_for_one, name: Server.Supervisor]
     r = Supervisor.start_link(children, opts)
-    Physics.Server.add_body(0.0, 0.0)
+    # Physics.Server.add_body(0.0, 0.0)
     r
   end
 

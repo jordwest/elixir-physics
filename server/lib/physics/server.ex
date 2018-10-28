@@ -9,6 +9,7 @@ defmodule Physics.Server do
     def init(start_val) do
         IO.puts "Starting Physics NIF server"
         result = Physics.Native.state_new()
+        Physics.Native.state_add_body(result, 0.0, 0.0)
         {:ok, result}
     end
 
@@ -36,7 +37,7 @@ defmodule Physics.Server do
     def get_all() do
         {x, y, r} = get_pos(0)
         %{
-            0 => %{:x => x, :y => y, :r => y}
+            0 => %{:x => x, :y => y, :r => r}
         }
     end
 end

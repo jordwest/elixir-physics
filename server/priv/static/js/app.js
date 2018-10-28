@@ -1676,6 +1676,58 @@ var _socket2 = _interopRequireDefault(_socket);
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
+// Now that you are connected, you can join channels with a topic:
+// Brunch automatically concatenates all files in your
+// watched paths. Those paths can be configured at
+// config.paths.watched in "brunch-config.js".
+//
+// However, those files will only be executed if
+// explicitly imported. The only exception are files
+// in vendor, which are never wrapped in imports and
+// therefore are always executed.
+
+// Import dependencies
+//
+// If you no longer want to use a dependency, remember
+// to also remove its path from "config.paths.watched".
+var channel = _socket2.default.channel("room:lobby", {});
+
+// Import local files
+//
+// Local files can be imported directly using relative
+// paths "./socket" or full ones "web/static/js/socket".
+
+channel.join().receive("ok", function (resp) {
+    console.log("Joined successfully", resp);
+}).receive("error", function (resp) {
+    console.log("Unable to join", resp);
+});
+
+var canvas = document.getElementById("canvas");
+var ctx = canvas.getContext("2d");
+
+channel.on("update", function (resp) {
+    Object.keys(resp).forEach(function (id) {
+        var data = resp[id];
+        var coords = worldToCanvasCoords(data);
+
+        ctx.setTransform(1, 0, 0, 1, 0, 0);
+
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        ctx.translate(coords.x, coords.y);
+        ctx.rotate(data.r);
+        ctx.stroke = "#000";
+        ctx.fill = "#00f";
+        ctx.fillRect(-20, -20, 40, 40);
+        ctx.strokeRect(-20, -20, 40, 40);
+        console.log(data.x, data.y, data.r);
+    });
+});
+
+function worldToCanvasCoords(v) {
+    return { x: v.x + 300, y: -v.y + 200 };
+}
+
 });
 
 ;require.register("js/socket.js", function(exports, require, module) {
@@ -1739,14 +1791,6 @@ var socket = new _phoenix.Socket("/socket", { params: { token: window.userToken 
 // To use Phoenix channels, the first step is to import Socket
 // and connect at the socket path in "lib/web/endpoint.ex":
 socket.connect();
-
-// Now that you are connected, you can join channels with a topic:
-var channel = socket.channel("room:lobby", {});
-channel.join().receive("ok", function (resp) {
-  console.log("Joined successfully", resp);
-}).receive("error", function (resp) {
-  console.log("Unable to join", resp);
-});
 
 exports.default = socket;
 
