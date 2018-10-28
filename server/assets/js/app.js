@@ -49,9 +49,9 @@ var ctx = canvas.getContext("2d");
 channel.on("update", resp => {
     ctx.setTransform(1, 0, 0, 1, 0, 0);
     ctx.clearRect(0, 0, canvas.width, canvas.height);
-    const floorPos = worldToCanvasCoords({x: -100, y: -0.5});
+    const floorPos = worldToCanvasCoords({x: -300, y: -0.5});
     ctx.fillStyle = "#000";
-    ctx.fillRect(floorPos.x, floorPos.y, 200, 1);
+    ctx.fillRect(floorPos.x, floorPos.y, 600, 1);
 
     resp.bodies.forEach(data => {
         const coords = worldToCanvasCoords(data);
@@ -61,11 +61,11 @@ channel.on("update", resp => {
         ctx.translate(coords.x, coords.y);
         ctx.rotate(-data.r);
         ctx.fillStyle = (data.id === my_id) ? "#00f" : "#aaa";
-        ctx.fillRect(-20, -20, 40, 40);
-        ctx.strokeRect(-20, -20, 40, 40);
+        ctx.fillRect(-2, -2, 4, 4);
+        ctx.strokeRect(-2, -2, 4, 4);
     })
 });
 
 function worldToCanvasCoords(v) {
-    return { x: (v.x) + 300, y: (-v.y) + 200 }
+    return { x: (v.x) + 512, y: (-v.y) + 500 }
 }

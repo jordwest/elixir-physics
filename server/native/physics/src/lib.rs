@@ -63,7 +63,7 @@ fn state_new<'a>(env: Env<'a>, _args: &[Term<'a>]) -> NifResult<Term<'a>> {
     world.set_gravity(Vector2::new(0.0, -9.81));
 
     // Add ground
-    let ground_radx = 100.0;
+    let ground_radx = 300.0;
     let ground_rady = 1.0;
     let ground_shape = ShapeHandle::new(Cuboid::new(Vector2::new(
         ground_radx - COLLIDER_MARGIN,
@@ -78,7 +78,7 @@ fn state_new<'a>(env: Env<'a>, _args: &[Term<'a>]) -> NifResult<Term<'a>> {
         ground_pos,
         Material::default(),
     );
-    world.set_timestep(0.064);
+    world.set_timestep(0.032);
 
     let state = State {
         world: world,
@@ -178,8 +178,8 @@ fn state_add_body<'a>(env: Env<'a>, args: &[Term<'a>]) -> NifResult<Term<'a>> {
     let y: f64 = args[2].decode()?;
 
     let geom = ShapeHandle::new(Cuboid::new(Vector2::new(
-        20.0,
-        20.0,
+        1.0,
+        1.0,
     )));
     let inertia = geom.inertia(1.0);
     let center_of_mass = geom.center_of_mass();

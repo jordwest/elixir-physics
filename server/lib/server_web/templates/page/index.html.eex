@@ -1,2 +1,4 @@
 
-<canvas id="canvas" width="600" height="400" style="background-color: #eee" />
+<div class="canvas-container">
+    <canvas id="canvas" width="1024" height="600" style="background-color: #eee" />
+</div>

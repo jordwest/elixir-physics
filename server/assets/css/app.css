@@ -1,1 +1,6 @@
 /* This file is for your main application css. */
+
+.canvas-container {
+    display: flex;
+    justify-content: center;
+}

@@ -3,7 +3,7 @@ defmodule ServerWeb.RoomChannel do
 
     def join("room:lobby", _message, socket) do
         Physics.Server.step()
-        body_id = Physics.Server.add_body(0.0, 200.0)
+        body_id = Physics.Server.add_body(Enum.random(-500..500) / 1, Enum.random(200..450) / 1)
         socket = assign(socket, :body_id, body_id)
         {:ok, body_id, socket}
     end
@@ -18,8 +18,8 @@ defmodule ServerWeb.RoomChannel do
         IO.puts body_id
         case action do
             "thrust" -> Physics.Server.apply_force(body_id, 0.0, 10.0, 0.0)
-            "cw" -> Physics.Server.apply_force(body_id, 3.0, 0.0, -0.2)
-            "ccw" -> Physics.Server.apply_force(body_id, -3.0, 0.0, 0.2)
+            "cw" -> Physics.Server.apply_force(body_id, 3.0, 0.0, -1.2)
+            "ccw" -> Physics.Server.apply_force(body_id, -3.0, 0.0, 1.2)
         end
         {:noreply, socket}
     end
