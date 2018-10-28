@@ -5,11 +5,11 @@
     </div>
 
     <div>
-        <canvas id="canvas" width="1024" height="600" style="background-color: #eee" />
+        <input id="display-name" type="text" class="medium-text" placeholder="Display name" />
     </div>
 
     <div>
-        <input id="display-name" type="text" class="large-text" placeholder="Display name" />
+        <canvas id="canvas" width="1024" height="600" style="background-color: #eee" />
     </div>
 
     <hr />

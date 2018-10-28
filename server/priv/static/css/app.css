@@ -9,6 +9,9 @@
 .large-text {
     font-size: 64px;
 }
+.medium-text {
+    font-size: 32px;
+}
 
 .diagram {
     margin: 300px 0px;
