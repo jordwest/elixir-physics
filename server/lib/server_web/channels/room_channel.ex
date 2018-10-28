@@ -18,8 +18,8 @@ defmodule ServerWeb.RoomChannel do
         IO.puts body_id
         case action do
             "thrust" -> Physics.Server.apply_force(body_id, 0.0, 10.0, 0.0)
-            "cw" -> Physics.Server.apply_force(body_id, 3.0, 0.0, -1.2)
-            "ccw" -> Physics.Server.apply_force(body_id, -3.0, 0.0, 1.2)
+            "cw" -> Physics.Server.apply_force(body_id, 3.0, 0.0, -3.0)
+            "ccw" -> Physics.Server.apply_force(body_id, -3.0, 0.0, 3.0)
         end
         {:noreply, socket}
     end

@@ -29,6 +29,8 @@ let my_id = null;
 
 let cameraX = 0.0;
 let cameraY = 0.0;
+let cameraTargetX = 0.0;
+let cameraTargetY = 0.0;
 let cameraScale = 10.0;
 
 channel.join()
@@ -67,11 +69,22 @@ var ctx = canvas.getContext("2d");
 channel.on("update", resp => {
     ctx.setTransform(1, 0, 0, 1, 0, 0);
     ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+    cameraX = cameraX + ((cameraTargetX - cameraX) * 0.2);
+    cameraY = cameraY + ((cameraTargetY - cameraY) * 0.2);
+
+    const ctr = worldToCanvasCoords({x: 0.0, y: 0.0});
+
+    [200.0, 150.0, 100.0, 80.0, 60.0, 40.0, 20.0, 10.0].forEach((r, i) => {
+        ctx.beginPath();
+        ctx.arc(ctr.x, ctr.y, r * cameraScale, 0, 2 * Math.PI);
+        ctx.fillStyle = i % 2 === 0 ? "#ccc" : "#ddd";
+        ctx.fill();
+    })
+
     const floorPos = worldToCanvasCoords({x: -300, y: -1.0});
     ctx.fillStyle = "#000";
     ctx.fillRect(floorPos.x, floorPos.y, 600 * cameraScale, -1.0 * cameraScale);
-
-    const ctr = worldToCanvasCoords({x: 0, y: 0});
 
     resp.bodies.forEach(data => {
         const coords = worldToCanvasCoords(data);
@@ -79,8 +92,8 @@ channel.on("update", resp => {
         ctx.setTransform(1, 0, 0, 1, 0, 0);
 
         if (data.id === my_id) {
-            cameraX = data.x;
-            cameraY = data.y;
+            cameraTargetX = data.x;
+            cameraTargetY = data.y;
         }
         ctx.translate(coords.x, coords.y);
         ctx.rotate(-data.r);
