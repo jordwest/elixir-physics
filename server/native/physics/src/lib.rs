@@ -5,8 +5,9 @@ extern crate nalgebra as na;
 extern crate ncollide2d;
 extern crate nphysics2d;
 
-use na::{Isometry2, Point2, Vector2};
+use na::{Isometry2, Vector2};
 use ncollide2d::shape::{Cuboid, ShapeHandle};
+use nphysics2d::algebra::{Force2, Velocity2};
 use nphysics2d::object::{BodyHandle, Material};
 use nphysics2d::volumetric::Volumetric;
 use rustler::{Env, Term, NifResult, Encoder};
@@ -40,7 +41,7 @@ rustler_export_nifs! {
     [
         ("state_new", 0, state_new),
         ("state_step", 1, state_step),
-        ("state_get_pos", 2, state_get_pos),
+        ("state_apply_force", 5, state_apply_force),
         ("state_get_body_ids", 1, state_get_body_ids),
         ("state_add_body", 3, state_add_body),
         ("state_del_body", 2, state_del_body),
@@ -62,7 +63,7 @@ fn state_new<'a>(env: Env<'a>, _args: &[Term<'a>]) -> NifResult<Term<'a>> {
     world.set_gravity(Vector2::new(0.0, -9.81));
 
     // Add ground
-    let ground_radx = 200.0;
+    let ground_radx = 100.0;
     let ground_rady = 1.0;
     let ground_shape = ShapeHandle::new(Cuboid::new(Vector2::new(
         ground_radx - COLLIDER_MARGIN,
@@ -138,22 +139,34 @@ fn state_del_body<'a>(env: Env<'a>, args: &[Term<'a>]) -> NifResult<Term<'a>> {
     Ok(atoms::ok().encode(env))
 }
 
-fn state_get_pos<'a>(env: Env<'a>, args: &[Term<'a>]) -> NifResult<Term<'a>> {
+fn state_apply_force<'a>(env: Env<'a>, args: &[Term<'a>]) -> NifResult<Term<'a>> {
     let state: ResourceArc<LockedState> = args[0].decode()?;
-    let state = state.state.read().map_err(|_| {
-        rustler::error::Error::RaiseAtom("read_lock")
+    let mut state = state.state.write().map_err(|_| {
+        rustler::error::Error::RaiseAtom("write_lock")
     })?;
     let body_id: usize = args[1].decode()?;
+    let fx: f64 = args[2].decode()?;
+    let fy: f64 = args[3].decode()?;
+    let ft: f64 = args[4].decode()?;
 
-    let handle = state.body_handles.get(&body_id).ok_or(rustler::error::Error::RaiseAtom("id_not_found"))?;
+    let handle = {
+        state.body_handles.get(&body_id).ok_or(rustler::error::Error::RaiseAtom("id_not_found"))?
+    }.clone();
 
-    let body = state.world.rigid_body(*handle).ok_or(rustler::error::Error::RaiseAtom("body_not_found"))?;
-    let pos = body.position();
-    let x = pos.translation.vector.x;
-    let y = pos.translation.vector.y;
-    let r = pos.rotation.angle();
+    let body = state.world.rigid_body_mut(handle).ok_or(rustler::error::Error::RaiseAtom("body_not_found"))?;
+    // let pos = body.position().translation.vector;
 
-    Ok((x, y, r).encode(env))
+    let linear_force = Velocity2::linear(fx, fy);
+    let torque_force = Velocity2::angular(ft);
+    let velocity = body.velocity().clone();
+    body.set_velocity(velocity + linear_force + torque_force);
+
+    // body.apply_force(&Force2::new(Vector2::new(fx, fy), ft));
+    // body.apply_force(&Force2::linear(Vector2::new(0.0, 100.0)));
+    // body.apply_force(&Force2::torque_at_point(1000.0, &pos));
+    // body.apply_displacement(&Velocity2::new(Vector2::new(fx, fy), 0.0));
+
+    Ok(atoms::ok().encode(env))
 }
 
 fn state_add_body<'a>(env: Env<'a>, args: &[Term<'a>]) -> NifResult<Term<'a>> {
@@ -168,7 +181,7 @@ fn state_add_body<'a>(env: Env<'a>, args: &[Term<'a>]) -> NifResult<Term<'a>> {
         20.0,
         20.0,
     )));
-    let inertia = geom.inertia(5.0);
+    let inertia = geom.inertia(1.0);
     let center_of_mass = geom.center_of_mass();
 
     let pos = Isometry2::new(Vector2::new(x, y), 1.0);

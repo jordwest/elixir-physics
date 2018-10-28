@@ -27,7 +27,20 @@ let channel = socket.channel("room:lobby", {})
 let my_id = null;
 
 channel.join()
-  .receive("ok", resp => { console.log("Joined successfully", resp); my_id = resp })
+  .receive("ok", resp => {
+      console.log("Joined successfully. ID: ", resp);
+      my_id = resp;
+      document.addEventListener('keydown', function(e) {
+          switch (e.key) {
+              case 'ArrowUp':
+                return channel.push('move', { action: 'thrust' });
+              case 'ArrowLeft':
+                return channel.push('move', { action: 'ccw' });
+              case 'ArrowRight':
+                return channel.push('move', { action: 'cw' });
+          }
+      })
+    })
   .receive("error", resp => { console.log("Unable to join", resp) })
 
 const canvas = document.getElementById("canvas");
@@ -36,6 +49,9 @@ var ctx = canvas.getContext("2d");
 channel.on("update", resp => {
     ctx.setTransform(1, 0, 0, 1, 0, 0);
     ctx.clearRect(0, 0, canvas.width, canvas.height);
+    const floorPos = worldToCanvasCoords({x: -100, y: -0.5});
+    ctx.fillStyle = "#000";
+    ctx.fillRect(floorPos.x, floorPos.y, 200, 1);
 
     resp.bodies.forEach(data => {
         const coords = worldToCanvasCoords(data);
@@ -43,7 +59,7 @@ channel.on("update", resp => {
         ctx.setTransform(1, 0, 0, 1, 0, 0);
 
         ctx.translate(coords.x, coords.y);
-        ctx.rotate(data.r);
+        ctx.rotate(-data.r);
         ctx.fillStyle = (data.id === my_id) ? "#00f" : "#aaa";
         ctx.fillRect(-20, -20, 40, 40);
         ctx.strokeRect(-20, -20, 40, 40);

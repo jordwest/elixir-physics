@@ -26,9 +26,9 @@ defmodule Physics.Server do
     end
 
     @impl true
-    def handle_call({:get_pos, body_id}, _from, state) do
-      result = Physics.Native.state_get_pos(state, body_id)
-      {:reply, result, state}
+    def handle_cast({:apply_force, body_id, fx, fy, ft}, state) do
+      Physics.Native.state_apply_force(state, body_id, fx, fy, ft)
+      {:noreply, state}
     end
 
     @impl true
@@ -45,7 +45,7 @@ defmodule Physics.Server do
 
     def add_body(x, y), do: GenServer.call(__MODULE__, {:add_body, x, y})
     def del_body(body_id), do: GenServer.cast(__MODULE__, {:del_body, body_id})
-    def get_pos(body_id), do: GenServer.call(__MODULE__, {:get_pos, body_id})
+    def apply_force(body_id, fx, fy, ft), do: GenServer.cast(__MODULE__, {:apply_force, body_id, fx, fy, ft})
     def get_body_ids(), do: GenServer.call(__MODULE__, :get_body_ids)
     def step(), do: GenServer.cast(__MODULE__, :step)
     def get_all() do
