@@ -64,7 +64,7 @@ fn state_new<'a>(env: Env<'a>, _args: &[Term<'a>]) -> NifResult<Term<'a>> {
 
     // Add ground
     let ground_radx = 300.0;
-    let ground_rady = 1.0;
+    let ground_rady = 10.0;
     let ground_shape = ShapeHandle::new(Cuboid::new(Vector2::new(
         ground_radx - COLLIDER_MARGIN,
         ground_rady - COLLIDER_MARGIN,
@@ -78,7 +78,10 @@ fn state_new<'a>(env: Env<'a>, _args: &[Term<'a>]) -> NifResult<Term<'a>> {
         ground_pos,
         Material::default(),
     );
-    world.set_timestep(0.032);
+    world.set_timestep(0.008);
+    world.set_timestep(0.008);
+    world.set_timestep(0.008);
+    world.set_timestep(0.008);
 
     let state = State {
         world: world,
@@ -98,6 +101,9 @@ fn state_step<'a>(env: Env<'a>, args: &[Term<'a>]) -> NifResult<Term<'a>> {
         rustler::error::Error::RaiseAtom("write_lock")
     })?;
 
+    state.world.step();
+    state.world.step();
+    state.world.step();
     state.world.step();
 
     Ok(atoms::ok().encode(env))

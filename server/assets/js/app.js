@@ -42,6 +42,8 @@ channel.join()
           switch (e.key) {
               case 'ArrowUp':
                 return channel.push('move', { action: 'thrust' });
+              case 'ArrowDown':
+                return channel.push('move', { action: 'reverse' });
               case 'ArrowLeft':
                 return channel.push('move', { action: 'ccw' });
               case 'ArrowRight':
@@ -82,9 +84,9 @@ channel.on("update", resp => {
         ctx.fill();
     })
 
-    const floorPos = worldToCanvasCoords({x: -300, y: -1.0});
+    const floorPos = worldToCanvasCoords({x: -300, y: -10.0});
     ctx.fillStyle = "#000";
-    ctx.fillRect(floorPos.x, floorPos.y, 600 * cameraScale, -1.0 * cameraScale);
+    ctx.fillRect(floorPos.x, floorPos.y, 600 * cameraScale, -10.0 * cameraScale);
 
     resp.bodies.forEach(data => {
         const coords = worldToCanvasCoords(data);
