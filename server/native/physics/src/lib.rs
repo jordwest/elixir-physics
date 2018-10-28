@@ -41,7 +41,9 @@ rustler_export_nifs! {
         ("state_new", 0, state_new),
         ("state_step", 1, state_step),
         ("state_get_pos", 2, state_get_pos),
+        ("state_get_body_ids", 1, state_get_body_ids),
         ("state_add_body", 3, state_add_body),
+        ("state_del_body", 2, state_del_body),
     ],
     Some(on_init)
 }
@@ -58,6 +60,24 @@ fn state_new<'a>(env: Env<'a>, _args: &[Term<'a>]) -> NifResult<Term<'a>> {
     // Create the world state and initialize it with zeroes.
     let mut world = World::new();
     world.set_gravity(Vector2::new(0.0, -9.81));
+
+    // Add ground
+    let ground_radx = 200.0;
+    let ground_rady = 1.0;
+    let ground_shape = ShapeHandle::new(Cuboid::new(Vector2::new(
+        ground_radx - COLLIDER_MARGIN,
+        ground_rady - COLLIDER_MARGIN,
+    )));
+
+    let ground_pos = Isometry2::new(-Vector2::y() * ground_rady, na::zero());
+    world.add_collider(
+        COLLIDER_MARGIN,
+        ground_shape,
+        BodyHandle::ground(),
+        ground_pos,
+        Material::default(),
+    );
+    world.set_timestep(0.064);
 
     let state = State {
         world: world,
@@ -78,6 +98,42 @@ fn state_step<'a>(env: Env<'a>, args: &[Term<'a>]) -> NifResult<Term<'a>> {
     })?;
 
     state.world.step();
+
+    Ok(atoms::ok().encode(env))
+}
+
+fn state_get_body_ids<'a>(env: Env<'a>, args: &[Term<'a>]) -> NifResult<Term<'a>> {
+    let state: ResourceArc<LockedState> = args[0].decode()?;
+    let state = state.state.read().map_err(|_| {
+        rustler::error::Error::RaiseAtom("read_lock")
+    })?;
+
+    let mut positions: Vec<(usize, f64, f64, f64)> = Vec::with_capacity(state.body_handles.len());
+    for (id, handle) in state.body_handles.iter() {
+        let body = state.world.rigid_body(*handle).ok_or(rustler::error::Error::RaiseAtom("body_not_found"))?;
+        let pos = body.position();
+        let x = pos.translation.vector.x;
+        let y = pos.translation.vector.y;
+        let r = pos.rotation.angle();
+        positions.push((*id, x, y, r));
+    }
+
+    Ok(positions.encode(env))
+}
+
+fn state_del_body<'a>(env: Env<'a>, args: &[Term<'a>]) -> NifResult<Term<'a>> {
+    let state: ResourceArc<LockedState> = args[0].decode()?;
+    let mut state = state.state.write().map_err(|_| {
+        rustler::error::Error::RaiseAtom("write_lock")
+    })?;
+    let body_id: usize = args[1].decode()?;
+
+    let body_handle = {
+        state.body_handles.get(&body_id).ok_or(rustler::error::Error::RaiseAtom("id_not_found"))?
+    }.clone();
+
+    state.world.remove_bodies(&[body_handle]);
+    state.body_handles.remove(&body_id);
 
     Ok(atoms::ok().encode(env))
 }
@@ -109,13 +165,13 @@ fn state_add_body<'a>(env: Env<'a>, args: &[Term<'a>]) -> NifResult<Term<'a>> {
     let y: f64 = args[2].decode()?;
 
     let geom = ShapeHandle::new(Cuboid::new(Vector2::new(
-        1.0,
-        1.0,
+        20.0,
+        20.0,
     )));
-    let inertia = geom.inertia(1.0);
+    let inertia = geom.inertia(5.0);
     let center_of_mass = geom.center_of_mass();
 
-    let pos = Isometry2::new(Vector2::new(x, y), 0.0);
+    let pos = Isometry2::new(Vector2::new(x, y), 1.0);
     let handle = state.world.add_rigid_body(pos, inertia, center_of_mass);
     let id = state.next_id;
     state.next_id += 1;

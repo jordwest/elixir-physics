@@ -9,7 +9,7 @@ defmodule Physics.Server do
     def init(start_val) do
         IO.puts "Starting Physics NIF server"
         result = Physics.Native.state_new()
-        Physics.Native.state_add_body(result, 0.0, 0.0)
+        # Physics.Native.state_add_body(result, 0.0, 80.0)
         {:ok, result}
     end
 
@@ -20,8 +20,20 @@ defmodule Physics.Server do
     end
 
     @impl true
+    def handle_cast({:del_body, body_id}, state) do
+      Physics.Native.state_del_body(state, body_id)
+      {:noreply, state}
+    end
+
+    @impl true
     def handle_call({:get_pos, body_id}, _from, state) do
       result = Physics.Native.state_get_pos(state, body_id)
+      {:reply, result, state}
+    end
+
+    @impl true
+    def handle_call(:get_body_ids, _from, state) do
+      result = Physics.Native.state_get_body_ids(state)
       {:reply, result, state}
     end
 
@@ -32,12 +44,14 @@ defmodule Physics.Server do
     end
 
     def add_body(x, y), do: GenServer.call(__MODULE__, {:add_body, x, y})
+    def del_body(body_id), do: GenServer.cast(__MODULE__, {:del_body, body_id})
     def get_pos(body_id), do: GenServer.call(__MODULE__, {:get_pos, body_id})
+    def get_body_ids(), do: GenServer.call(__MODULE__, :get_body_ids)
     def step(), do: GenServer.cast(__MODULE__, :step)
     def get_all() do
-        {x, y, r} = get_pos(0)
+        bodies = Enum.map(get_body_ids(), fn {id, x, y, r} -> %{:id => id, :x => x, :y => y, :r => r} end)
         %{
-            0 => %{:x => x, :y => y, :r => r}
+            :bodies => bodies
         }
     end
 end

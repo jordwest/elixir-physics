@@ -1697,8 +1697,10 @@ var channel = _socket2.default.channel("room:lobby", {});
 // Local files can be imported directly using relative
 // paths "./socket" or full ones "web/static/js/socket".
 
+var my_id = null;
+
 channel.join().receive("ok", function (resp) {
-    console.log("Joined successfully", resp);
+    console.log("Joined successfully", resp);my_id = resp;
 }).receive("error", function (resp) {
     console.log("Unable to join", resp);
 });
@@ -1707,20 +1709,19 @@ var canvas = document.getElementById("canvas");
 var ctx = canvas.getContext("2d");
 
 channel.on("update", function (resp) {
-    Object.keys(resp).forEach(function (id) {
-        var data = resp[id];
+    ctx.setTransform(1, 0, 0, 1, 0, 0);
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+    resp.bodies.forEach(function (data) {
         var coords = worldToCanvasCoords(data);
 
         ctx.setTransform(1, 0, 0, 1, 0, 0);
 
-        ctx.clearRect(0, 0, canvas.width, canvas.height);
         ctx.translate(coords.x, coords.y);
         ctx.rotate(data.r);
-        ctx.stroke = "#000";
-        ctx.fill = "#00f";
+        ctx.fillStyle = data.id === my_id ? "#00f" : "#aaa";
         ctx.fillRect(-20, -20, 40, 40);
         ctx.strokeRect(-20, -20, 40, 40);
-        console.log(data.x, data.y, data.r);
     });
 });
 

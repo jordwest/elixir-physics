@@ -24,28 +24,29 @@ import socket from "./socket"
 // Now that you are connected, you can join channels with a topic:
 let channel = socket.channel("room:lobby", {})
 
+let my_id = null;
+
 channel.join()
-  .receive("ok", resp => { console.log("Joined successfully", resp) })
+  .receive("ok", resp => { console.log("Joined successfully", resp); my_id = resp })
   .receive("error", resp => { console.log("Unable to join", resp) })
 
 const canvas = document.getElementById("canvas");
 var ctx = canvas.getContext("2d");
 
 channel.on("update", resp => {
-    Object.keys(resp).forEach(id => {
-        const data = resp[id];
+    ctx.setTransform(1, 0, 0, 1, 0, 0);
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+    resp.bodies.forEach(data => {
         const coords = worldToCanvasCoords(data);
 
         ctx.setTransform(1, 0, 0, 1, 0, 0);
 
-        ctx.clearRect(0, 0, canvas.width, canvas.height);
         ctx.translate(coords.x, coords.y);
         ctx.rotate(data.r);
-        ctx.stroke = "#000";
-        ctx.fill = "#00f";
+        ctx.fillStyle = (data.id === my_id) ? "#00f" : "#aaa";
         ctx.fillRect(-20, -20, 40, 40);
         ctx.strokeRect(-20, -20, 40, 40);
-        console.log(data.x, data.y, data.r);
     })
 });
 

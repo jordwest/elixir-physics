@@ -17,7 +17,7 @@ defmodule Physics.Timer do
         Physics.Server.step()
         data = Physics.Server.get_all()
         ServerWeb.Endpoint.broadcast("room:lobby", "update", data)
-        Process.send_after(self, :tick, 100)
+        Process.send_after(self, :tick, 32)
         {:noreply, state}
     end
 end
