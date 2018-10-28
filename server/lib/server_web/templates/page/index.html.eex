@@ -7,4 +7,10 @@
     <div>
         <canvas id="canvas" width="1024" height="600" style="background-color: #eee" />
     </div>
+
+    <hr />
+
+    <div class="diagram">
+        <img src="/images/diagram.png" />
+    </div>
 </div>

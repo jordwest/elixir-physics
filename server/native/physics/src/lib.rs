@@ -59,27 +59,37 @@ fn on_init<'a>(env: Env<'a>, _load_info: Term<'a>) -> bool {
 
 impl State {
     fn add_toys(&mut self) {
-        // TODO: Add some chains etc to interact with
-        // let geom = ShapeHandle::new(Cuboid::new(Vector2::new(
-        //     1.0,
-        //     1.0,
-        // )));
-        // let inertia = geom.inertia(1.0);
-        // let center_of_mass = geom.center_of_mass();
+        let blocks_y = vec![
+            30.0,
+            25.0,
+            20.0,
+            15.0,
+            10.0,
+            5.0
+        ];
 
-        // let pos = Isometry2::new(Vector2::new(50.0, 20.0), 1.0);
-        // let handle = self.world.add_rigid_body(pos, inertia, center_of_mass);
-        // let id = self.next_id;
-        // self.next_id += 1;
+        for block_y in &blocks_y {
+            let geom = ShapeHandle::new(Cuboid::new(Vector2::new(
+                1.0,
+                1.0,
+            )));
+            let inertia = geom.inertia(1.0);
+            let center_of_mass = geom.center_of_mass();
 
-        // self.world.add_collider(
-        //     COLLIDER_MARGIN,
-        //     geom.clone(),
-        //     handle,
-        //     Isometry2::identity(),
-        //     Material::default(),
-        // );
-        // self.body_handles.insert(id, handle);
+            let pos = Isometry2::new(Vector2::new(0.0, *block_y), 0.0);
+            let handle = self.world.add_rigid_body(pos, inertia, center_of_mass);
+            let id = self.next_id;
+            self.next_id += 1;
+
+            self.world.add_collider(
+                COLLIDER_MARGIN,
+                geom.clone(),
+                handle,
+                Isometry2::identity(),
+                Material::default(),
+            );
+            self.body_handles.insert(id, handle);
+        }
     }
 }
 
@@ -104,19 +114,22 @@ fn state_new<'a>(env: Env<'a>, _args: &[Term<'a>]) -> NifResult<Term<'a>> {
         ground_pos,
         Material::default(),
     );
-    world.set_timestep(0.008);
-    world.set_timestep(0.008);
-    world.set_timestep(0.008);
-    world.set_timestep(0.008);
+    world.set_timestep(0.016);
+    world.set_timestep(0.016);
+    // world.set_timestep(0.008);
+    // world.set_timestep(0.008);
 
-    let state = State {
+    let mut state = State {
         world: world,
         body_handles: HashMap::new(),
         next_id: 0,
     };
+    state.add_toys();
+
     let locked_state = LockedState {
         state: RwLock::new(state),
     };
+
 
     Ok(ResourceArc::new(locked_state).encode(env))
 }
@@ -129,8 +142,8 @@ fn state_step<'a>(env: Env<'a>, args: &[Term<'a>]) -> NifResult<Term<'a>> {
 
     state.world.step();
     state.world.step();
-    state.world.step();
-    state.world.step();
+    // state.world.step();
+    // state.world.step();
 
     Ok(atoms::ok().encode(env))
 }

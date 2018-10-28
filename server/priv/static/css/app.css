@@ -9,6 +9,10 @@
 #ip-addr {
     font-size: 64px;
 }
+
+.diagram {
+    margin: 300px 0px;
+}
 /* Includes Bootstrap as well as some default style for the starter
  * application. This can be safely deleted to start fresh.
  */
