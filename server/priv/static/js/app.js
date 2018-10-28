@@ -1704,10 +1704,14 @@ var cameraY = 0.0;
 var cameraTargetX = 0.0;
 var cameraTargetY = 0.0;
 var cameraScale = 10.0;
+var names = {};
 
 channel.join().receive("ok", function (resp) {
     console.log("Joined successfully. ID: ", resp);
     my_id = resp;
+    document.getElementById('display-name').addEventListener('keyup', function (e) {
+        channel.push('set_name', { name: e.target.value });
+    });
     document.addEventListener('keydown', function (e) {
         console.log(e.key);
         switch (e.key) {
@@ -1749,8 +1753,12 @@ if (ipAddr) {
     ipAddr.innerText = window.location;
 }
 
+channel.on("names", function (resp) {
+    console.log("received names", resp);
+    names = resp;
+});
+
 channel.on("update", function (resp) {
-    console.log('update');
     ctx.setTransform(1, 0, 0, 1, 0, 0);
     ctx.clearRect(0, 0, canvas.width, canvas.height);
 
@@ -1780,10 +1788,19 @@ channel.on("update", function (resp) {
             cameraTargetY = data.y;
         }
         ctx.translate(coords.x, coords.y);
+        ctx.fillStyle = data.id === my_id ? "#00f" : "#444";
+        var name = names[data.id];
+        if (name) {
+            console.log(name);
+            ctx.font = '48px';
+            ctx.fillText(name, 20, 0);
+        }
+
         ctx.rotate(-data.r);
         ctx.fillStyle = data.id === my_id ? "#00f" : "#aaa";
         ctx.fillRect(-1 * cameraScale, -1 * cameraScale, 2 * cameraScale, 2 * cameraScale);
         ctx.strokeRect(-1 * cameraScale, -1 * cameraScale, 2 * cameraScale, 2 * cameraScale);
+
         // ctx.fillRect(-2, -2, 4, 4);
         // ctx.strokeRect(-2, -2, 4, 4);
     });

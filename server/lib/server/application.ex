@@ -13,6 +13,7 @@ defmodule Server.Application do
 
       supervisor(Physics.Server, []),
       supervisor(Physics.Timer, []),
+      supervisor(NameRegistry, []),
       # Start your own worker by calling: Server.Worker.start_link(arg1, arg2, arg3)
       # worker(Server.Worker, [arg1, arg2, arg3]),
     ]

@@ -1,11 +1,15 @@
 
 <div class="flex-container">
     <div>
-        <span id="ip-addr"></span>
+        <span id="ip-addr" class="large-text"></span>
     </div>
 
     <div>
         <canvas id="canvas" width="1024" height="600" style="background-color: #eee" />
+    </div>
+
+    <div>
+        <input id="display-name" type="text" class="large-text" placeholder="Display name" />
     </div>
 
     <hr />
@@ -13,4 +17,5 @@
     <div class="diagram">
         <img src="/images/diagram.png" />
     </div>
+
 </div>
