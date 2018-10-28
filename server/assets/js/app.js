@@ -118,9 +118,9 @@ const onUpdate = resp => {
         ctx.fill();
     })
 
-    const floorPos = worldToCanvasCoords({x: -300, y: -10.0});
+    const floorPos = worldToCanvasCoords({x: -300, y: 0.0});
     ctx.fillStyle = "#000";
-    ctx.fillRect(floorPos.x, floorPos.y, 600 * cameraScale, -10.0 * cameraScale);
+    ctx.fillRect(floorPos.x, floorPos.y, 600 * cameraScale, 20.0 * cameraScale);
 
     resp.bodies.forEach(data => {
         const coords = worldToCanvasCoords(data);
@@ -136,8 +136,7 @@ const onUpdate = resp => {
         let name = names[data.id];
         if (name) {
             console.log(name);
-            ctx.font = '48px';
-            ctx.fillText(name, 20, 0);
+            ctx.fillText(name, 2 * cameraScale, 0);
         }
 
         ctx.rotate(-data.r);

@@ -1792,9 +1792,9 @@ var onUpdate = function onUpdate(resp) {
         ctx.fill();
     });
 
-    var floorPos = worldToCanvasCoords({ x: -300, y: -10.0 });
+    var floorPos = worldToCanvasCoords({ x: -300, y: 0.0 });
     ctx.fillStyle = "#000";
-    ctx.fillRect(floorPos.x, floorPos.y, 600 * cameraScale, -10.0 * cameraScale);
+    ctx.fillRect(floorPos.x, floorPos.y, 600 * cameraScale, 20.0 * cameraScale);
 
     resp.bodies.forEach(function (data) {
         var coords = worldToCanvasCoords(data);
@@ -1810,8 +1810,7 @@ var onUpdate = function onUpdate(resp) {
         var name = names[data.id];
         if (name) {
             console.log(name);
-            ctx.font = '48px';
-            ctx.fillText(name, 20, 0);
+            ctx.fillText(name, 2 * cameraScale, 0);
         }
 
         ctx.rotate(-data.r);
