@@ -2,12 +2,17 @@ defmodule ServerWeb.RoomChannel do
     use Phoenix.Channel
 
     def join("room:lobby", _message, socket) do
-        Physics.Server.step()
         body_id = Physics.Server.add_body(Enum.random(-10..10) / 1, Enum.random(10..20) / 1)
         NameRegistry.set_name(body_id, "Anonymous")
         send(self, :broadcast_names)
         socket = assign(socket, :body_id, body_id)
         {:ok, body_id, socket}
+    end
+    def join("room:lobby2", _message, socket) do
+        {:ok, nil, socket}
+    end
+    def join("room:lobby3", _message, socket) do
+        {:ok, nil, socket}
     end
 
     def join("room:" <> _private_room_id, _params, _socket) do
@@ -42,6 +47,9 @@ defmodule ServerWeb.RoomChannel do
     def terminate(_msg, socket) do
         IO.puts "====Leaving===="
         body_id = socket.assigns[:body_id]
-        Physics.Server.del_body(body_id)
+        case body_id do
+            nil -> ()
+            id -> Physics.Server.del_body(id)
+        end
     end
 end

@@ -2,6 +2,8 @@ defmodule ServerWeb.Endpoint do
   use Phoenix.Endpoint, otp_app: :server
 
   socket "/socket", ServerWeb.UserSocket
+  socket "/socket2", ServerWeb.UserSocket
+  socket "/socket3", ServerWeb.UserSocket
 
   # Serve at "/" the static files from "priv/static" directory.
   #

@@ -1672,10 +1672,6 @@ require("phoenix_html");
 
 var _socket = require("./socket");
 
-var _socket2 = _interopRequireDefault(_socket);
-
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
-
 // Now that you are connected, you can join channels with a topic:
 // Brunch automatically concatenates all files in your
 // watched paths. Those paths can be configured at
@@ -1690,12 +1686,15 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
 //
 // If you no longer want to use a dependency, remember
 // to also remove its path from "config.paths.watched".
-var channel = _socket2.default.channel("room:lobby", {});
+var channel = _socket.socket.channel("room:lobby", {});
 
 // Import local files
 //
 // Local files can be imported directly using relative
 // paths "./socket" or full ones "web/static/js/socket".
+
+var channel2 = _socket.socket2.channel("room:lobby2", {});
+var channel3 = _socket.socket3.channel("room:lobby3", {});
 
 var my_id = null;
 
@@ -1705,6 +1704,19 @@ var cameraTargetX = 0.0;
 var cameraTargetY = 0.0;
 var cameraScale = 10.0;
 var names = {};
+var time = 0.0;
+
+channel2.join().receive("ok", function (resp) {
+    console.log("Channel 2 joined successfully", resp);
+}).receive("error", function (resp) {
+    console.log("Unable to join channel 2", resp);
+});
+
+channel3.join().receive("ok", function (resp) {
+    console.log("Channel 3 joined successfully", resp);
+}).receive("error", function (resp) {
+    console.log("Unable to join channel 3", resp);
+});
 
 channel.join().receive("ok", function (resp) {
     console.log("Joined successfully. ID: ", resp);
@@ -1758,7 +1770,13 @@ channel.on("names", function (resp) {
     names = resp;
 });
 
-channel.on("update", function (resp) {
+var onUpdate = function onUpdate(resp) {
+    if (resp.time < time) {
+        console.log("dropping frame");
+        return;
+    }
+
+    time = resp.time;
     ctx.setTransform(1, 0, 0, 1, 0, 0);
     ctx.clearRect(0, 0, canvas.width, canvas.height);
 
@@ -1804,7 +1822,11 @@ channel.on("update", function (resp) {
         // ctx.fillRect(-2, -2, 4, 4);
         // ctx.strokeRect(-2, -2, 4, 4);
     });
-});
+};
+
+channel.on("update", onUpdate);
+channel2.on("update", onUpdate);
+channel3.on("update", onUpdate);
 
 function worldToCanvasCoords(v) {
     var cX = cameraScale > 1.0 ? cameraX : 0.0;
@@ -1812,8 +1834,6 @@ function worldToCanvasCoords(v) {
     return {
         x: (v.x - cX) * cameraScale + canvas.width / 2,
         y: (-v.y + cY) * cameraScale + canvas.height / 2
-        // x: (((v.x - cameraX) + (canvas.width)) * cameraScale) - canvas.width / 2,
-        // y: (((-v.y + cameraY) + (canvas.height)) * cameraScale) - canvas.height / 2
     };
 }
 
@@ -1825,10 +1845,18 @@ function worldToCanvasCoords(v) {
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
+exports.socket3 = exports.socket2 = exports.socket = undefined;
 
 var _phoenix = require("phoenix");
 
-var socket = new _phoenix.Socket("/socket", { params: { token: window.userToken } });
+var socket = new _phoenix.Socket("/socket", { params: { token: window.userToken } }); // NOTE: The contents of this file will only be executed if
+// you uncomment its entry in "assets/js/app.js".
+
+// To use Phoenix channels, the first step is to import Socket
+// and connect at the socket path in "lib/web/endpoint.ex":
+
+var socket2 = new _phoenix.Socket("/socket2", { params: { token: window.userToken } });
+var socket3 = new _phoenix.Socket("/socket3", { params: { token: window.userToken } });
 
 // When you connect, you'll often need to authenticate the client.
 // For example, imagine you have an authentication plug, `MyAuth`,
@@ -1874,14 +1902,13 @@ var socket = new _phoenix.Socket("/socket", { params: { token: window.userToken 
 // Finally, pass the token on connect as below. Or remove it
 // from connect if you don't care about authentication.
 
-// NOTE: The contents of this file will only be executed if
-// you uncomment its entry in "assets/js/app.js".
-
-// To use Phoenix channels, the first step is to import Socket
-// and connect at the socket path in "lib/web/endpoint.ex":
 socket.connect();
+socket2.connect();
+socket3.connect();
 
-exports.default = socket;
+exports.socket = socket;
+exports.socket2 = socket2;
+exports.socket3 = socket3;
 
 });
 

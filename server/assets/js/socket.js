@@ -6,6 +6,8 @@
 import {Socket} from "phoenix"
 
 let socket = new Socket("/socket", {params: {token: window.userToken}})
+let socket2 = new Socket("/socket2", {params: {token: window.userToken}})
+let socket3 = new Socket("/socket3", {params: {token: window.userToken}})
 
 // When you connect, you'll often need to authenticate the client.
 // For example, imagine you have an authentication plug, `MyAuth`,
@@ -52,5 +54,7 @@ let socket = new Socket("/socket", {params: {token: window.userToken}})
 // from connect if you don't care about authentication.
 
 socket.connect()
+socket2.connect()
+socket3.connect()
 
-export default socket
+export {socket, socket2, socket3};

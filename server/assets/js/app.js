@@ -18,14 +18,15 @@ import "phoenix_html"
 // Local files can be imported directly using relative
 // paths "./socket" or full ones "web/static/js/socket".
 
-import socket from "./socket"
+import {socket, socket2, socket3} from "./socket"
 
 
 // Now that you are connected, you can join channels with a topic:
-let channel = socket.channel("room:lobby", {})
+let channel = socket.channel("room:lobby", {});
+let channel2 = socket2.channel("room:lobby2", {});
+let channel3 = socket3.channel("room:lobby3", {});
 
 let my_id = null;
-
 
 let cameraX = 0.0;
 let cameraY = 0.0;
@@ -33,6 +34,15 @@ let cameraTargetX = 0.0;
 let cameraTargetY = 0.0;
 let cameraScale = 10.0;
 let names = {};
+let time = 0.0;
+
+channel2.join()
+    .receive("ok", resp => { console.log("Channel 2 joined successfully", resp) })
+    .receive("error", resp => { console.log("Unable to join channel 2", resp) });
+
+channel3.join()
+    .receive("ok", resp => { console.log("Channel 3 joined successfully", resp) })
+    .receive("error", resp => { console.log("Unable to join channel 3", resp) });
 
 channel.join()
   .receive("ok", resp => {
@@ -86,7 +96,13 @@ channel.on("names", resp => {
     names = resp;
 });
 
-channel.on("update", resp => {
+const onUpdate = resp => {
+    if (resp.time < time) {
+        console.log("dropping frame");
+        return;
+    }
+
+    time = resp.time;
     ctx.setTransform(1, 0, 0, 1, 0, 0);
     ctx.clearRect(0, 0, canvas.width, canvas.height);
 
@@ -132,7 +148,11 @@ channel.on("update", resp => {
         // ctx.fillRect(-2, -2, 4, 4);
         // ctx.strokeRect(-2, -2, 4, 4);
     })
-});
+};
+
+channel.on("update", onUpdate);
+channel2.on("update", onUpdate);
+channel3.on("update", onUpdate);
 
 function worldToCanvasCoords(v) {
     let cX = cameraScale > 1.0 ? cameraX : 0.0;
@@ -140,7 +160,5 @@ function worldToCanvasCoords(v) {
     return {
         x: ((v.x - cX) * cameraScale) + canvas.width / 2,
         y: ((-v.y + cY) * cameraScale) + canvas.height / 2,
-        // x: (((v.x - cameraX) + (canvas.width)) * cameraScale) - canvas.width / 2,
-        // y: (((-v.y + cameraY) + (canvas.height)) * cameraScale) - canvas.height / 2
-    }
+    };
 }
