@@ -246,7 +246,7 @@ fn state_add_body<'a>(env: Env<'a>, args: &[Term<'a>]) -> NifResult<Term<'a>> {
     let id = state.next_id;
     state.next_id += 1;
 
-    // state.world.rigid_body_mut(handle.clone()).unwrap().set_deactivation_threshold(None);
+    state.world.rigid_body_mut(handle.clone()).unwrap().activation_status_mut().set_deactivation_threshold(None);
 
     state.world.add_collider(
         COLLIDER_MARGIN,
