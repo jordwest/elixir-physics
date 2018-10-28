@@ -1739,6 +1739,14 @@ channel.join().receive("ok", function (resp) {
             case 'ArrowRight':
                 e.preventDefault();
                 return channel.push('move', { action: 'cw' });
+            case 'w':
+                return channel.push('move', { action: 'thrust' });
+            case 's':
+                return channel.push('move', { action: 'reverse' });
+            case 'a':
+                return channel.push('move', { action: 'ccw' });
+            case 'd':
+                return channel.push('move', { action: 'cw' });
             case "=":
                 if (cameraScale < 10.0) {
                     cameraScale *= 1.2;
@@ -1821,6 +1829,11 @@ var onUpdate = function onUpdate(resp) {
         // ctx.fillRect(-2, -2, 4, 4);
         // ctx.strokeRect(-2, -2, 4, 4);
     });
+    ctx.setTransform(1, 0, 0, 1, 0, 0);
+    ctx.fillStyle = "rgba(0, 0, 0, 0.7)";
+    ctx.font = '18px sans-serif';
+    ctx.fillText("⬆️⬅️➡️⬇️ / WASD", 10, 20);
+    ctx.fillText("-/+ to adjust camera zoom", 10, 50);
 };
 
 channel.on("update", onUpdate);
