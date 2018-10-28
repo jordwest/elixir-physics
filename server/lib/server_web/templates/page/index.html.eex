@@ -1,4 +1,10 @@
 
-<div class="canvas-container">
-    <canvas id="canvas" width="1024" height="600" style="background-color: #eee" />
+<div class="flex-container">
+    <div>
+        <span id="ip-addr"></span>
+    </div>
+
+    <div>
+        <canvas id="canvas" width="1024" height="600" style="background-color: #eee" />
+    </div>
 </div>

@@ -57,6 +57,32 @@ fn on_init<'a>(env: Env<'a>, _load_info: Term<'a>) -> bool {
     true
 }
 
+impl State {
+    fn add_toys(&mut self) {
+        // TODO: Add some chains etc to interact with
+        // let geom = ShapeHandle::new(Cuboid::new(Vector2::new(
+        //     1.0,
+        //     1.0,
+        // )));
+        // let inertia = geom.inertia(1.0);
+        // let center_of_mass = geom.center_of_mass();
+
+        // let pos = Isometry2::new(Vector2::new(50.0, 20.0), 1.0);
+        // let handle = self.world.add_rigid_body(pos, inertia, center_of_mass);
+        // let id = self.next_id;
+        // self.next_id += 1;
+
+        // self.world.add_collider(
+        //     COLLIDER_MARGIN,
+        //     geom.clone(),
+        //     handle,
+        //     Isometry2::identity(),
+        //     Material::default(),
+        // );
+        // self.body_handles.insert(id, handle);
+    }
+}
+
 fn state_new<'a>(env: Env<'a>, _args: &[Term<'a>]) -> NifResult<Term<'a>> {
     // Create the world state and initialize it with zeroes.
     let mut world = World::new();

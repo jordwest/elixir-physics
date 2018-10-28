@@ -1,6 +1,11 @@
 /* This file is for your main application css. */
 
-.canvas-container {
+.flex-container {
     display: flex;
-    justify-content: center;
+    flex-direction: column;
+    align-items: center;
+}
+
+#ip-addr {
+    font-size: 64px;
 }

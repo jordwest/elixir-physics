@@ -41,12 +41,16 @@ channel.join()
           console.log(e.key);
           switch (e.key) {
               case 'ArrowUp':
+                e.preventDefault();
                 return channel.push('move', { action: 'thrust' });
               case 'ArrowDown':
+                e.preventDefault();
                 return channel.push('move', { action: 'reverse' });
               case 'ArrowLeft':
+                e.preventDefault();
                 return channel.push('move', { action: 'ccw' });
               case 'ArrowRight':
+                e.preventDefault();
                 return channel.push('move', { action: 'cw' });
               case "=":
                 if (cameraScale < 10.0) {
@@ -68,7 +72,13 @@ channel.join()
 const canvas = document.getElementById("canvas");
 var ctx = canvas.getContext("2d");
 
+const ipAddr = document.getElementById("ip-addr");
+if (ipAddr) {
+    ipAddr.innerText = window.location;
+}
+
 channel.on("update", resp => {
+    console.log('update');
     ctx.setTransform(1, 0, 0, 1, 0, 0);
     ctx.clearRect(0, 0, canvas.width, canvas.height);
 
