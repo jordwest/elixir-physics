@@ -65,7 +65,19 @@ impl State {
             20.0,
             15.0,
             10.0,
-            5.0
+            5.0,
+            30.0,
+            25.0,
+            20.0,
+            15.0,
+            10.0,
+            5.0,
+            30.0,
+            25.0,
+            20.0,
+            15.0,
+            10.0,
+            5.0,
         ];
 
         for block_y in &blocks_y {
@@ -124,7 +136,7 @@ fn state_new<'a>(env: Env<'a>, _args: &[Term<'a>]) -> NifResult<Term<'a>> {
         body_handles: HashMap::new(),
         next_id: 0,
     };
-    state.add_toys();
+    // state.add_toys();
 
     let locked_state = LockedState {
         state: RwLock::new(state),
