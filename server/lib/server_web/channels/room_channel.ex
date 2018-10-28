@@ -3,7 +3,7 @@ defmodule ServerWeb.RoomChannel do
 
     def join("room:lobby", _message, socket) do
         Physics.Server.step()
-        body_id = Physics.Server.add_body(Enum.random(-500..500) / 1, Enum.random(200..450) / 1)
+        body_id = Physics.Server.add_body(Enum.random(-10..10) / 1, Enum.random(10..20) / 1)
         socket = assign(socket, :body_id, body_id)
         {:ok, body_id, socket}
     end

@@ -1699,10 +1699,15 @@ var channel = _socket2.default.channel("room:lobby", {});
 
 var my_id = null;
 
+var cameraX = 0.0;
+var cameraY = 0.0;
+var cameraScale = 10.0;
+
 channel.join().receive("ok", function (resp) {
     console.log("Joined successfully. ID: ", resp);
     my_id = resp;
     document.addEventListener('keydown', function (e) {
+        console.log(e.key);
         switch (e.key) {
             case 'ArrowUp':
                 return channel.push('move', { action: 'thrust' });
@@ -1710,6 +1715,18 @@ channel.join().receive("ok", function (resp) {
                 return channel.push('move', { action: 'ccw' });
             case 'ArrowRight':
                 return channel.push('move', { action: 'cw' });
+            case "=":
+                if (cameraScale < 10.0) {
+                    cameraScale *= 1.2;
+                }
+                return;
+            case "-":
+                if (cameraScale > 1.0) {
+                    cameraScale *= 0.8;
+                } else {
+                    cameraScale = 1.0;
+                }
+                return;
         }
     });
 }).receive("error", function (resp) {
@@ -1722,25 +1739,40 @@ var ctx = canvas.getContext("2d");
 channel.on("update", function (resp) {
     ctx.setTransform(1, 0, 0, 1, 0, 0);
     ctx.clearRect(0, 0, canvas.width, canvas.height);
-    var floorPos = worldToCanvasCoords({ x: -300, y: -0.5 });
+    var floorPos = worldToCanvasCoords({ x: -300, y: -1.0 });
     ctx.fillStyle = "#000";
-    ctx.fillRect(floorPos.x, floorPos.y, 600, 1);
+    ctx.fillRect(floorPos.x, floorPos.y, 600 * cameraScale, -1.0 * cameraScale);
+
+    var ctr = worldToCanvasCoords({ x: 0, y: 0 });
 
     resp.bodies.forEach(function (data) {
         var coords = worldToCanvasCoords(data);
 
         ctx.setTransform(1, 0, 0, 1, 0, 0);
 
+        if (data.id === my_id) {
+            cameraX = data.x;
+            cameraY = data.y;
+        }
         ctx.translate(coords.x, coords.y);
         ctx.rotate(-data.r);
         ctx.fillStyle = data.id === my_id ? "#00f" : "#aaa";
-        ctx.fillRect(-2, -2, 4, 4);
-        ctx.strokeRect(-2, -2, 4, 4);
+        ctx.fillRect(-1 * cameraScale, -1 * cameraScale, 2 * cameraScale, 2 * cameraScale);
+        ctx.strokeRect(-1 * cameraScale, -1 * cameraScale, 2 * cameraScale, 2 * cameraScale);
+        // ctx.fillRect(-2, -2, 4, 4);
+        // ctx.strokeRect(-2, -2, 4, 4);
     });
 });
 
 function worldToCanvasCoords(v) {
-    return { x: v.x + 512, y: -v.y + 500 };
+    var cX = cameraScale > 1.0 ? cameraX : 0.0;
+    var cY = cameraScale > 1.0 ? cameraY : 0.0;
+    return {
+        x: (v.x - cX) * cameraScale + canvas.width / 2,
+        y: (-v.y + cY) * cameraScale + canvas.height / 2
+        // x: (((v.x - cameraX) + (canvas.width)) * cameraScale) - canvas.width / 2,
+        // y: (((-v.y + cameraY) + (canvas.height)) * cameraScale) - canvas.height / 2
+    };
 }
 
 });
