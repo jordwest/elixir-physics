@@ -1721,8 +1721,16 @@ channel3.join().receive("ok", function (resp) {
 channel.join().receive("ok", function (resp) {
     console.log("Joined successfully. ID: ", resp);
     my_id = resp;
+    var savedName = sessionStorage.getItem('displayname');
+    if (savedName && savedName.length > 0) {
+        console.log('Using saved name', savedName);
+        document.getElementById('display-name').value = savedName;
+        channel.push('set_name', { name: savedName });
+    }
     document.getElementById('display-name').addEventListener('keyup', function (e) {
-        channel.push('set_name', { name: e.target.value });
+        var name = e.target.value;
+        sessionStorage.setItem('displayname', name);
+        channel.push('set_name', { name: name });
     });
     document.addEventListener('keydown', function (e) {
         console.log(e.key);
@@ -1747,6 +1755,11 @@ channel.join().receive("ok", function (resp) {
                 return channel.push('move', { action: 'ccw' });
             case 'd':
                 return channel.push('move', { action: 'cw' });
+            case "+":
+                if (cameraScale < 10.0) {
+                    cameraScale *= 1.2;
+                }
+                return;
             case "=":
                 if (cameraScale < 10.0) {
                     cameraScale *= 1.2;
